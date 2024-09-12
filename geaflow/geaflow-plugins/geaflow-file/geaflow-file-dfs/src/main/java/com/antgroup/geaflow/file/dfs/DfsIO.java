@@ -117,6 +117,11 @@ public class DfsIO implements IPersistentIO {
     }
 
     @Override
+    public void copyRemoteToRemoteFile(Path srcPath, Path dstPath) throws IOException {
+        copyFromLocalFile(srcPath, dstPath);
+    }
+
+    @Override
     public long getRemoteFileSize(Path path) throws IOException {
         FileStatus status = fileSystem.getFileStatus(path);
         return status.getLen();

@@ -202,6 +202,21 @@ public class GraphManagerImpl extends DataManagerImpl<GeaflowGraph, GraphView, G
         return graphService.clean(Collections.singletonList(graph));
     }
 
+    @Override
+    public boolean snapshot(String instanceName, String graphName, Map<String, String> body) {
+        String instanceId = getInstanceIdByName(instanceName);
+        GeaflowGraph graph = graphService.getByName(instanceId, graphName);
+        String sourcePath = null;
+        if (body.containsKey("sourcePath") && body.get("sourcePath") != null) {
+            sourcePath = body.get("sourcePath");
+        }
+        String snapshotPath = null;
+        if (body.containsKey("snapshotPath") && body.get("snapshotPath") != null) {
+            snapshotPath = body.get("snapshotPath");
+        }
+        return graphService.snapshot(graph, sourcePath, snapshotPath);
+    }
+
     private List<GeaflowEndpoint> buildEndpoints(String instanceId, List<EndpointView> endpointViews) {
         return ListUtil.convert(endpointViews, e -> {
             // check vertex/edge existing and build endpoint models

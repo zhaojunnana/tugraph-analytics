@@ -45,6 +45,11 @@ public class FileConfigKeys {
         .defaultValue("/geaflow/chk")
         .description("geaflow file persistent root path");
 
+    public static final ConfigKey RECOVER_VERSION = ConfigKeys
+            .key("geaflow.recover.version")
+            .defaultValue(-1L)
+            .description("recover version of checkpoint");
+
     /**
      * oss config.
      */

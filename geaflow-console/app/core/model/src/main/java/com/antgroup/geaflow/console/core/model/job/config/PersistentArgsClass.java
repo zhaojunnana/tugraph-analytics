@@ -43,6 +43,10 @@ public class PersistentArgsClass extends GeaflowConfigClass {
     @GeaflowConfigValue(required = true, defaultValue = "/geaflow/chk")
     private String root;
 
+    @GeaflowConfigKey(value = "geaflow.file.persistent.snapshot", comment = "i18n.key.snapshot.path")
+    @GeaflowConfigValue(defaultValue = "/geaflow/snapshot")
+    private String snapshot;
+
     @GeaflowConfigKey(value = "geaflow.file.persistent.thread.size", comment = "i18n.key.local.thread.pool.count")
     @GeaflowConfigValue
     private Integer threadSize;

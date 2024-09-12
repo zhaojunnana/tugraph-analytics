@@ -166,6 +166,14 @@ public class GraphService extends DataService<GeaflowGraph, GraphEntity, GraphSe
         return true;
     }
 
+    public boolean snapshot(GeaflowGraph graph, String sourcePath, String snapshotPath) {
+        GeaflowPluginCategory category = GeaflowPluginCategory.DATA;
+        String dataType = pluginService.getDefaultPlugin(category).getType();
+        GeaflowDataStore dataStore = dataStoreFactory.getDataStore(dataType);
+        dataStore.snapshotGraphDate(graph, sourcePath, snapshotPath);
+        return true;
+    }
+
     private void saveGraphStructs(GeaflowGraph g, List<String> vertexIds, List<String> edgeIds) {
         List<GraphStructMappingEntity> graphStructs = new ArrayList<>();
         String graphId = g.getId();

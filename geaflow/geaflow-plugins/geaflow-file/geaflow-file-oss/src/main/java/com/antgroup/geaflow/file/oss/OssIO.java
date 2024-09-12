@@ -160,6 +160,11 @@ public class OssIO implements IPersistentIO {
     }
 
     @Override
+    public void copyRemoteToRemoteFile(Path srcPath, Path dstPath) throws IOException {
+        ossClient.copyObject(bucketName, pathToKey(srcPath), bucketName, pathToKey(dstPath));
+    }
+
+    @Override
     public long getRemoteFileSize(Path path) throws IOException {
         OSSObject ossObject = ossClient.getObject(bucketName, pathToKey(path));
         return ossObject.getObjectMetadata().getContentLength();

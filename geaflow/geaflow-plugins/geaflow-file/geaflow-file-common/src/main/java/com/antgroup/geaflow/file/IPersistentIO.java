@@ -39,6 +39,8 @@ public interface IPersistentIO {
 
     void copyToLocalFile(Path remote, Path local) throws IOException;
 
+    void copyRemoteToRemoteFile(Path srcPath, Path dstPath) throws IOException;
+
     long getRemoteFileSize(Path path) throws IOException;
 
     long getFileCount(Path path) throws IOException;

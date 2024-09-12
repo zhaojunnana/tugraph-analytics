@@ -77,6 +77,7 @@ public class RocksdbPersistClient {
     private static final String FILE_SEPARATOR = ",";
     private static final String SST_SUFFIX = "sst";
 
+    private final Long recoverVesion;
     private final Long persistTimeout;
     private final IPersistentIO persistIO;
     private final NavigableMap<Long, CheckPointFileInfo> checkPointFileInfo;
@@ -87,6 +88,7 @@ public class RocksdbPersistClient {
         new BasicThreadFactory.Builder().namingPattern("asyncDeletes-%d").daemon(true).build(), new DiscardOldestPolicy());
 
     public RocksdbPersistClient(Configuration configuration) {
+        recoverVesion = configuration.getLong(FileConfigKeys.RECOVER_VERSION);
         this.persistIO = PersistentIOBuilder.build(configuration);
         this.checkPointFileInfo = new ConcurrentSkipListMap<>();
         int persistThreadNum = configuration.getInteger(FileConfigKeys.PERSISTENT_THREAD_SIZE);
@@ -219,22 +221,32 @@ public class RocksdbPersistClient {
         }
 
         // fetch manifests.
+        if (recoverVesion != -1L && recoverVesion > 0) {
+            chkId = recoverVesion;
+        }
         String remoteMeta = Paths.get(remotePathStr, getMetaFileName(chkId)).toString();
+        if (!persistIO.exists(new Path(remoteMeta))) {
+            String msg = String.format("checkPoint meta: %s is not exist in remote", remoteMeta);
+            LOGGER.warn(msg);
+            throw new GeaflowRuntimeException(RuntimeErrors.INST.stateRocksDbError(msg));
+        }
+
         InputStream in = persistIO.open(new Path(remoteMeta, FILES));
         String sstString = IOUtils.toString(in, Charset.defaultCharset());
         List<String> list = Splitter.on(FILE_SEPARATOR).omitEmptyStrings().splitToList(sstString);
 
         CheckPointFileInfo commitedInfo = new CheckPointFileInfo(chkId);
         recoveryData(remotePath, rocksDBChkFile, commitedInfo, list, remoteMeta);
-        LOGGER.info("recoveryFromRemote {} cost {}ms", remotePath,
-            System.currentTimeMillis() - startTime);
+        LOGGER.info("recoveryFromRemote {} cost {}ms, version {}", remotePath,
+            System.currentTimeMillis() - startTime, chkId);
         checkPointFileInfo.put(chkId, commitedInfo);
 
         for (File file : rocksDBChkFile.listFiles()) {
             Files.createLink(FileSystems.getDefault().getPath(localRdbPath, file.getName()), file.toPath());
         }
 
-        backgroundDeleteService.execute(() -> cleanLocalChk(chkId, new File(localChkPath)));
+        long finalChkId = chkId;
+        backgroundDeleteService.execute(() -> cleanLocalChk(finalChkId, new File(localChkPath)));
     }
 
     private static void cleanLocalChk(long chkId, File localChkFile) {

@@ -19,6 +19,7 @@ import com.antgroup.geaflow.console.biz.shared.view.EndpointView;
 import com.antgroup.geaflow.console.biz.shared.view.GraphView;
 import com.antgroup.geaflow.console.common.dal.model.GraphSearch;
 import java.util.List;
+import java.util.Map;
 
 public interface GraphManager extends DataManager<GraphView, GraphSearch> {
 
@@ -27,4 +28,6 @@ public interface GraphManager extends DataManager<GraphView, GraphSearch> {
     boolean deleteEndpoints(String instanceName, String graphName, List<EndpointView> endpoints);
 
     boolean clean(String instanceName, String graphName);
+
+    boolean snapshot(String instanceName, String graphName, Map<String, String> body);
 }

@@ -15,6 +15,9 @@
 package com.antgroup.geaflow.console.common.service.integration.engine;
 
 import com.antgroup.geaflow.console.common.util.proxy.ProxyClass;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @ProxyClass("com.antgroup.geaflow.file.IPersistentIO")
@@ -29,5 +32,9 @@ public interface IPersistentIO {
     boolean rename(FsPath from, FsPath to);
 
     void delete(FsPath path, boolean recursive);
+
+    void copyRemoteToRemoteFile(FsPath srcPath, FsPath dstPath) throws IOException;
+
+    InputStream open(FsPath path) throws IOException;
 
 }

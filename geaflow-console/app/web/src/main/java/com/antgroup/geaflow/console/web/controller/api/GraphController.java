@@ -21,6 +21,8 @@ import com.antgroup.geaflow.console.common.dal.model.GraphSearch;
 import com.antgroup.geaflow.console.common.dal.model.PageList;
 import com.antgroup.geaflow.console.web.api.GeaflowApiResponse;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,6 +79,13 @@ public class GraphController {
     public GeaflowApiResponse<Boolean> clean(@PathVariable("instanceName") String instanceName,
                                             @PathVariable("graphName") String graphName) {
         return GeaflowApiResponse.success(graphManager.clean(instanceName, graphName));
+    }
+
+    @PostMapping("/instances/{instanceName}/graphs/{graphName}/snapshot")
+    public GeaflowApiResponse<Boolean> snapshot(@PathVariable("instanceName") String instanceName,
+                                            @PathVariable("graphName") String graphName,
+                                            @RequestBody(required = false) Map<String, String> body) {
+        return GeaflowApiResponse.success(graphManager.snapshot(instanceName, graphName, body));
     }
 
     @PostMapping("/instances/{instanceName}/graphs/{graphName}/endpoints")

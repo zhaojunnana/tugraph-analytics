@@ -30,4 +30,5 @@ public interface GeaflowDataStore {
 
     void cleanGraphData(GeaflowGraph graph);
 
+    void snapshotGraphDate(GeaflowGraph graph, String sourcePath, String snapshotPath);
 }
