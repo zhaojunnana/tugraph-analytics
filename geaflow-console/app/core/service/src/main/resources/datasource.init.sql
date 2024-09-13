@@ -187,6 +187,32 @@ UNIQUE KEY `uk_guid` (`guid`)
 ;
 
 /******************************************/
+/*   TableName = geaflow_snapshot   */
+/******************************************/
+CREATE TABLE IF NOT EXISTS `geaflow_snapshot` (
+`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'PK',
+`gmt_create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+`gmt_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify Time',
+`tenant_id` char(64) NOT NULL COMMENT 'Tenant ID',
+`guid` char(64) NOT NULL COMMENT 'ID',
+`creator_id` char(64) NOT NULL COMMENT 'Create ID',
+`modifier_id` char(64) NOT NULL COMMENT 'Modifier ID',
+`name` varchar(128) NOT NULL COMMENT 'Name',
+`comment` varchar(1024) DEFAULT NULL COMMENT 'Comment',
+`instance_id` char(64) NOT NULL COMMENT 'Instance ID',
+`graph_id` char(64) NOT NULL COMMENT 'Graph ID',
+`source_path` char(64) NOT NULL COMMENT 'Source Path',
+`snapshot_path` char(64) NOT NULL COMMENT 'Snapshot Path',
+`snapshot_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Snapshot Time',
+`finish_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Finish Time',
+`status` char(64) NOT NULL COMMENT 'Status',
+PRIMARY KEY (`id`),
+UNIQUE KEY `uk_name` (`tenant_id`, `name`),
+UNIQUE KEY `uk_guid` (`guid`)
+) DEFAULT CHARSET = utf8mb4 COMMENT = 'Snapshot Table'
+;
+
+/******************************************/
 /*   TableName = geaflow_job   */
 /******************************************/
 CREATE TABLE IF NOT EXISTS `geaflow_job` (

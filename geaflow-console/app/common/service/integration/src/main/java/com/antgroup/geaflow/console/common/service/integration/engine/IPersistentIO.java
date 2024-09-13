@@ -37,4 +37,6 @@ public interface IPersistentIO {
 
     InputStream open(FsPath path) throws IOException;
 
+    long getRemoteFileSize(FsPath path) throws IOException;
+
 }

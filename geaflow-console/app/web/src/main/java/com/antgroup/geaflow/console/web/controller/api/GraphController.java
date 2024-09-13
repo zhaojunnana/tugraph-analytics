@@ -19,9 +19,9 @@ import com.antgroup.geaflow.console.biz.shared.view.EndpointView;
 import com.antgroup.geaflow.console.biz.shared.view.GraphView;
 import com.antgroup.geaflow.console.common.dal.model.GraphSearch;
 import com.antgroup.geaflow.console.common.dal.model.PageList;
+import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 import com.antgroup.geaflow.console.web.api.GeaflowApiResponse;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -84,8 +84,8 @@ public class GraphController {
     @PostMapping("/instances/{instanceName}/graphs/{graphName}/snapshot")
     public GeaflowApiResponse<Boolean> snapshot(@PathVariable("instanceName") String instanceName,
                                             @PathVariable("graphName") String graphName,
-                                            @RequestBody(required = false) Map<String, String> body) {
-        return GeaflowApiResponse.success(graphManager.snapshot(instanceName, graphName, body));
+                                            @RequestBody GeaflowSnapshot geaflowSnapshot) {
+        return GeaflowApiResponse.success(graphManager.snapshot(instanceName, graphName, geaflowSnapshot));
     }
 
     @PostMapping("/instances/{instanceName}/graphs/{graphName}/endpoints")

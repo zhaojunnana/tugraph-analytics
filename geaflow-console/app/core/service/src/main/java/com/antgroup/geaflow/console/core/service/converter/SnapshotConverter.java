@@ -12,24 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package com.antgroup.geaflow.console.core.service.store;
+package com.antgroup.geaflow.console.core.service.converter;
 
-import com.antgroup.geaflow.console.core.model.data.GeaflowGraph;
+import com.antgroup.geaflow.console.common.dal.entity.GeaflowSnapshotEntity;
 import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
-import com.antgroup.geaflow.console.core.model.task.GeaflowTask;
-import java.util.Date;
+import org.springframework.stereotype.Component;
 
-public interface GeaflowDataStore {
+@Component
+public class SnapshotConverter extends NameConverter<GeaflowSnapshot, GeaflowSnapshotEntity> {
 
-    Long queryStorageUsage(GeaflowTask task);
-
-    Long queryFileCount(GeaflowTask task);
-
-    Date queryModifyTime(GeaflowTask task);
-
-    void cleanTaskData(GeaflowTask task);
-
-    void cleanGraphData(GeaflowGraph graph);
-
-    void snapshotGraphDate(GeaflowGraph graph, GeaflowSnapshot geaflowSnapshot);
+    public GeaflowSnapshot convert(GeaflowSnapshotEntity entity) {
+        return entityToModel(entity);
+    }
 }

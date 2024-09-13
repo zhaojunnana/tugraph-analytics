@@ -31,6 +31,7 @@ import com.antgroup.geaflow.console.core.model.GeaflowId;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEdge;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEndpoint;
 import com.antgroup.geaflow.console.core.model.data.GeaflowGraph;
+import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 import com.antgroup.geaflow.console.core.model.data.GeaflowVertex;
 import com.antgroup.geaflow.console.core.model.plugin.config.GeaflowPluginConfig;
 import com.antgroup.geaflow.console.core.service.converter.DataConverter;
@@ -166,11 +167,11 @@ public class GraphService extends DataService<GeaflowGraph, GraphEntity, GraphSe
         return true;
     }
 
-    public boolean snapshot(GeaflowGraph graph, String sourcePath, String snapshotPath) {
+    public boolean snapshot(GeaflowGraph graph, GeaflowSnapshot geaflowSnapshot) {
         GeaflowPluginCategory category = GeaflowPluginCategory.DATA;
         String dataType = pluginService.getDefaultPlugin(category).getType();
         GeaflowDataStore dataStore = dataStoreFactory.getDataStore(dataType);
-        dataStore.snapshotGraphDate(graph, sourcePath, snapshotPath);
+        dataStore.snapshotGraphDate(graph, geaflowSnapshot);
         return true;
     }
 

@@ -34,6 +34,7 @@ import com.antgroup.geaflow.console.common.util.type.GeaflowStructType;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEdge;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEndpoint;
 import com.antgroup.geaflow.console.core.model.data.GeaflowGraph;
+import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 import com.antgroup.geaflow.console.core.model.data.GeaflowVertex;
 import com.antgroup.geaflow.console.core.model.plugin.config.GeaflowPluginConfig;
 import com.antgroup.geaflow.console.core.service.DataService;
@@ -203,18 +204,12 @@ public class GraphManagerImpl extends DataManagerImpl<GeaflowGraph, GraphView, G
     }
 
     @Override
-    public boolean snapshot(String instanceName, String graphName, Map<String, String> body) {
+    public boolean snapshot(String instanceName, String graphName, GeaflowSnapshot geaflowSnapshot) {
         String instanceId = getInstanceIdByName(instanceName);
+        geaflowSnapshot.setInstanceId(Long.parseLong(instanceId));
         GeaflowGraph graph = graphService.getByName(instanceId, graphName);
-        String sourcePath = null;
-        if (body.containsKey("sourcePath") && body.get("sourcePath") != null) {
-            sourcePath = body.get("sourcePath");
-        }
-        String snapshotPath = null;
-        if (body.containsKey("snapshotPath") && body.get("snapshotPath") != null) {
-            snapshotPath = body.get("snapshotPath");
-        }
-        return graphService.snapshot(graph, sourcePath, snapshotPath);
+        geaflowSnapshot.setGraphId(Long.parseLong(graph.getId()));
+        return graphService.snapshot(graph, geaflowSnapshot);
     }
 
     private List<GeaflowEndpoint> buildEndpoints(String instanceId, List<EndpointView> endpointViews) {
