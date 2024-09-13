@@ -18,6 +18,7 @@ import com.antgroup.geaflow.console.common.service.integration.engine.Configurat
 import com.antgroup.geaflow.console.common.service.integration.engine.FsPath;
 import com.antgroup.geaflow.console.common.service.integration.engine.IPersistentIO;
 import com.antgroup.geaflow.console.common.service.integration.engine.PersistentIOBuilder;
+import com.antgroup.geaflow.console.common.util.context.ContextHolder;
 import com.antgroup.geaflow.console.common.util.exception.GeaflowException;
 import com.antgroup.geaflow.console.common.util.type.GeaflowPluginCategory;
 import com.antgroup.geaflow.console.core.model.data.GeaflowGraph;
@@ -67,9 +68,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PersistentDataStore implements GeaflowDataStore {
 
-    private final ExecutorService shardService = new ThreadPoolExecutor(
+    private final ExecutorService asyncCopyService = new ThreadPoolExecutor(
             1,
             Runtime.getRuntime().availableProcessors(),
+            30,
+            TimeUnit.MINUTES,
+            new LinkedBlockingQueue<>(Integer.MAX_VALUE),
+            new ThreadFactoryBuilder()
+                    .setNameFormat("async-copy-%d")
+                    .setDaemon(true)
+                    .build()
+    );
+
+    private final ExecutorService shardService = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
             30,
             TimeUnit.MINUTES,
             new LinkedBlockingQueue<>(Integer.MAX_VALUE),
@@ -167,13 +180,13 @@ public class PersistentDataStore implements GeaflowDataStore {
 
         FsPath srcPath = classLoader.newInstance(FsPath.class, geaflowSnapshot.getSourcePath(), pathSuffix);
         long snapshotTime = Instant.now().getEpochSecond();
-        geaflowSnapshot.setSnapshotTime(new Date(snapshotTime));
+        geaflowSnapshot.setSnapshotTime(new Date(snapshotTime * 1000));
         FsPath dstPath = classLoader.newInstance(FsPath.class,
                 geaflowSnapshot.getSnapshotPath(), pathSuffix + "/" + snapshotTime);
-        shardService.execute(new Thread(() -> {
+        geaflowSnapshot.setStatus(GeaflowSnapshot.SnapshotStatus.RUNNING);
+        asyncCopyService.execute(new Thread(() -> {
             copyLastVersionGraphData(persistentIO, classLoader, geaflowSnapshot, srcPath, dstPath);
         }));
-        geaflowSnapshot.setStatus(GeaflowSnapshot.SnapshotStatus.RUNNING);
         log.info("snapshot graph data:{},sourcePath:{},snapshotPath:{}", pathSuffix,
                 geaflowSnapshot.getSourcePath(), pathSuffix);
         snapshotService.create(geaflowSnapshot);
@@ -216,7 +229,15 @@ public class PersistentDataStore implements GeaflowDataStore {
             geaflowSnapshot.setStatus(GeaflowSnapshot.SnapshotStatus.FAILED);
             persistentIO.delete(dstPath, true);
         }
-        snapshotService.update(geaflowSnapshot);
+        if (snapshotService.existName(geaflowSnapshot.getName())) {
+            GeaflowSnapshot snapshot = snapshotService.getByName(geaflowSnapshot.getName());
+            snapshot.setFinishTime(geaflowSnapshot.getFinishTime());
+            snapshot.setStatus(geaflowSnapshot.getStatus());
+            ContextHolder.init();
+            ContextHolder.get().setUserId(snapshot.getModifierId());
+            ContextHolder.get().setTenantId(snapshot.getTenantId());
+            snapshotService.update(snapshot);
+        }
     }
 
     private long getLastVersion(IPersistentIO persistentIO, VersionClassLoader classLoader,
@@ -297,8 +318,8 @@ public class PersistentDataStore implements GeaflowDataStore {
             this.shard = Long.parseLong(shardArray[shardArray.length - 1]);
             String threadName = "snapshot-" + this.shard + "-%d";
             copyFileService = new ThreadPoolExecutor(
-                    1,
                     Runtime.getRuntime().availableProcessors(),
+                    Runtime.getRuntime().availableProcessors() * 4,
                     30,
                     TimeUnit.MINUTES,
                     new LinkedBlockingQueue<>(Integer.MAX_VALUE),

@@ -84,7 +84,7 @@ public class GraphController {
     @PostMapping("/instances/{instanceName}/graphs/{graphName}/snapshot")
     public GeaflowApiResponse<Boolean> snapshot(@PathVariable("instanceName") String instanceName,
                                             @PathVariable("graphName") String graphName,
-                                            @RequestBody GeaflowSnapshot geaflowSnapshot) {
+                                            @RequestBody(required = false) GeaflowSnapshot geaflowSnapshot) {
         return GeaflowApiResponse.success(graphManager.snapshot(instanceName, graphName, geaflowSnapshot));
     }
 

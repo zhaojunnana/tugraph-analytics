@@ -79,6 +79,7 @@ public class PersistentArgsClass extends GeaflowConfigClass {
 
         PersistentPluginConfigClass config = pluginConfig.getConfig().parse(configClass);
         this.root = config.getRoot();
+        this.snapshot = config.getSnapshot();
         this.threadSize = config.getThreadSize();
         this.username = config.getUsername();
         this.plugin = config;

@@ -31,6 +31,7 @@ public class GeaflowSnapshotEntity extends NameEntity {
     private String sourcePath;
     private String snapshotPath;
     private Date snapshotTime;
+    private Date finishTime;
     private String status;
 
 }
