@@ -16,10 +16,24 @@ package com.antgroup.geaflow.console.common.dal.dao;
 
 import com.antgroup.geaflow.console.common.dal.entity.GeaflowSnapshotEntity;
 import com.antgroup.geaflow.console.common.dal.mapper.GeaflowSnapshotMapper;
+import com.antgroup.geaflow.console.common.dal.model.PageList;
 import com.antgroup.geaflow.console.common.dal.model.SnapshotSearch;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class SnapshotDao extends SystemLevelDao<GeaflowSnapshotMapper, GeaflowSnapshotEntity>
-        implements NameDao<GeaflowSnapshotEntity, SnapshotSearch> {
+        implements DataDao<GeaflowSnapshotEntity, SnapshotSearch> {
+
+    @Override
+    public PageList<GeaflowSnapshotEntity> search(SnapshotSearch search) {
+        MPJLambdaWrapper<GeaflowSnapshotEntity> wrapper = new MPJLambdaWrapper<>();
+        if (search.getInstanceId() != null && !search.getInstanceId().isEmpty()) {
+            wrapper.eq(GeaflowSnapshotEntity::getInstanceId, search.getInstanceId());
+        }
+        if (search.getGraphId() != null && !search.getGraphId().isEmpty()) {
+            wrapper.eq(GeaflowSnapshotEntity::getGraphId, search.getGraphId());
+        }
+        return DataDao.super.search(wrapper, search);
+    }
 }

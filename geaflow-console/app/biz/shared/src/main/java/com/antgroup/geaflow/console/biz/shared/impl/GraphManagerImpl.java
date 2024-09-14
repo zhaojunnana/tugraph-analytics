@@ -34,7 +34,6 @@ import com.antgroup.geaflow.console.common.util.type.GeaflowStructType;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEdge;
 import com.antgroup.geaflow.console.core.model.data.GeaflowEndpoint;
 import com.antgroup.geaflow.console.core.model.data.GeaflowGraph;
-import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 import com.antgroup.geaflow.console.core.model.data.GeaflowVertex;
 import com.antgroup.geaflow.console.core.model.plugin.config.GeaflowPluginConfig;
 import com.antgroup.geaflow.console.core.service.DataService;
@@ -201,15 +200,6 @@ public class GraphManagerImpl extends DataManagerImpl<GeaflowGraph, GraphView, G
         String instanceId = getInstanceIdByName(instanceName);
         GeaflowGraph graph = graphService.getByName(instanceId, graphName);
         return graphService.clean(Collections.singletonList(graph));
-    }
-
-    @Override
-    public boolean snapshot(String instanceName, String graphName, GeaflowSnapshot geaflowSnapshot) {
-        String instanceId = getInstanceIdByName(instanceName);
-        geaflowSnapshot.setInstanceId(Long.parseLong(instanceId));
-        GeaflowGraph graph = graphService.getByName(instanceId, graphName);
-        geaflowSnapshot.setGraphId(Long.parseLong(graph.getId()));
-        return graphService.snapshot(graph, geaflowSnapshot);
     }
 
     private List<GeaflowEndpoint> buildEndpoints(String instanceId, List<EndpointView> endpointViews) {

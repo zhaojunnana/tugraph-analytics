@@ -19,6 +19,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SnapshotSearch extends NameSearch {
+public class SnapshotSearch extends DataSearch {
+
+    String instanceName;
+    String graphName;
+    String graphId;
 
 }

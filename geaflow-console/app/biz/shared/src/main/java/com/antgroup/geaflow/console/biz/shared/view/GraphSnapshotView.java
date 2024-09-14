@@ -12,27 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package com.antgroup.geaflow.console.common.dal.entity;
+package com.antgroup.geaflow.console.biz.shared.view;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 
 import java.util.Date;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@TableName("geaflow_snapshot")
-public class GeaflowSnapshotEntity extends DataEntity {
+@NoArgsConstructor
+public class GraphSnapshotView extends DataView {
 
-    private String graphId;
-    private String sourcePath;
-    private String snapshotPath;
+    String graphId;
+    String instanceId;
+    String sourcePath;
+    String snapshotPath;
     Long snapshotTimeLong;
     Long checkpoint;
-    private Date snapshotTime;
-    private Date finishTime;
-    private String status;
+    Date snapshotTime;
+    Date finishTime;
+    GeaflowSnapshot.SnapshotStatus status;
 
 }

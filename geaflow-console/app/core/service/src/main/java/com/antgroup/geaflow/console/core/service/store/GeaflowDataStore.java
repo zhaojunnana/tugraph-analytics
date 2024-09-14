@@ -32,4 +32,6 @@ public interface GeaflowDataStore {
     void cleanGraphData(GeaflowGraph graph);
 
     void snapshotGraphDate(GeaflowGraph graph, GeaflowSnapshot geaflowSnapshot);
+
+    boolean deleteSnapshotData(GeaflowGraph graph, GeaflowSnapshot geaflowSnapshot);
 }

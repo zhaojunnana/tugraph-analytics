@@ -19,14 +19,16 @@ import com.antgroup.geaflow.console.core.model.data.GeaflowSnapshot;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SnapshotConverter extends NameConverter<GeaflowSnapshot, GeaflowSnapshotEntity> {
+public class SnapshotConverter extends DataConverter<GeaflowSnapshot, GeaflowSnapshotEntity> {
 
     @Override
-    protected GeaflowSnapshotEntity modelToEntity(GeaflowSnapshot model) {
+    public GeaflowSnapshotEntity modelToEntity(GeaflowSnapshot model) {
         GeaflowSnapshotEntity snapshotEntity = super.modelToEntity(model);
         if (model.getTenantId() != null) {
             snapshotEntity.setTenantId(model.getTenantId());
         }
+        snapshotEntity.setSnapshotTimeLong(model.getSnapshotTimeLong());
+        snapshotEntity.setCheckpoint(model.getCheckpoint());
         snapshotEntity.setSnapshotPath(model.getSnapshotPath());
         snapshotEntity.setSnapshotTime(model.getSnapshotTime());
         snapshotEntity.setInstanceId(model.getInstanceId());
@@ -38,8 +40,10 @@ public class SnapshotConverter extends NameConverter<GeaflowSnapshot, GeaflowSna
     }
 
     @Override
-    protected GeaflowSnapshot entityToModel(GeaflowSnapshotEntity entity) {
+    public GeaflowSnapshot entityToModel(GeaflowSnapshotEntity entity) {
         GeaflowSnapshot snapshot = super.entityToModel(entity);
+        snapshot.setSnapshotTimeLong(entity.getSnapshotTimeLong());
+        snapshot.setCheckpoint(entity.getCheckpoint());
         snapshot.setSnapshotPath(entity.getSnapshotPath());
         snapshot.setSnapshotTime(entity.getSnapshotTime());
         snapshot.setInstanceId(entity.getInstanceId());
@@ -50,7 +54,7 @@ public class SnapshotConverter extends NameConverter<GeaflowSnapshot, GeaflowSna
         return snapshot;
     }
 
-    public GeaflowSnapshot convert(GeaflowSnapshotEntity entity) {
+    public GeaflowSnapshot convertEntity(GeaflowSnapshotEntity entity) {
         return entityToModel(entity);
     }
 }

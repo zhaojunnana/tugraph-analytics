@@ -180,6 +180,7 @@ public class PersistentDataStore implements GeaflowDataStore {
 
         FsPath srcPath = classLoader.newInstance(FsPath.class, geaflowSnapshot.getSourcePath(), pathSuffix);
         long snapshotTime = Instant.now().getEpochSecond();
+        geaflowSnapshot.setSnapshotTimeLong(snapshotTime);
         geaflowSnapshot.setSnapshotTime(new Date(snapshotTime * 1000));
         FsPath dstPath = classLoader.newInstance(FsPath.class,
                 geaflowSnapshot.getSnapshotPath(), pathSuffix + "/" + snapshotTime);
@@ -190,6 +191,26 @@ public class PersistentDataStore implements GeaflowDataStore {
         log.info("snapshot graph data:{},sourcePath:{},snapshotPath:{}", pathSuffix,
                 geaflowSnapshot.getSourcePath(), pathSuffix);
         snapshotService.create(geaflowSnapshot);
+    }
+
+    @Override
+    public boolean deleteSnapshotData(GeaflowGraph graph, GeaflowSnapshot geaflowSnapshot) {
+        if (geaflowSnapshot.getSnapshotPath() == null || geaflowSnapshot.getSnapshotPath().isEmpty()) {
+            return true;
+        }
+        GeaflowPluginCategory category = GeaflowPluginCategory.DATA;
+        String dataType = pluginService.getDefaultPlugin(category).getType();
+        GeaflowPluginConfig dataConfig = pluginConfigService.getDefaultPluginConfig(category, dataType);
+        GeaflowVersion version = versionService.getDefaultVersion();
+        IPersistentIO persistentIO = buildPersistentIO(dataConfig, version);
+        VersionClassLoader classLoader = versionFactory.getClassLoader(version);
+
+        GeaflowInstance instance = instanceService.get(geaflowSnapshot.getInstanceId());
+        String pathSuffix = instance.getName() + "_" + graph.getName()
+                + "/" + geaflowSnapshot.getSnapshotTime().toInstant().getEpochSecond();
+        FsPath snapshotPath = classLoader.newInstance(FsPath.class, geaflowSnapshot.getSnapshotPath(), pathSuffix);
+        persistentIO.delete(snapshotPath, true);
+        return true;
     }
 
     @SneakyThrows
@@ -229,10 +250,12 @@ public class PersistentDataStore implements GeaflowDataStore {
             geaflowSnapshot.setStatus(GeaflowSnapshot.SnapshotStatus.FAILED);
             persistentIO.delete(dstPath, true);
         }
-        if (snapshotService.existName(geaflowSnapshot.getName())) {
-            GeaflowSnapshot snapshot = snapshotService.getByName(geaflowSnapshot.getName());
+        GeaflowSnapshot snapshot = snapshotService.getByNameInstanceIdAndGraphId(geaflowSnapshot.getInstanceId(),
+                geaflowSnapshot.getGraphId(), geaflowSnapshot.getName());
+        if (snapshot != null) {
             snapshot.setFinishTime(geaflowSnapshot.getFinishTime());
             snapshot.setStatus(geaflowSnapshot.getStatus());
+            snapshot.setCheckpoint(lastVersion);
             ContextHolder.init();
             ContextHolder.get().setUserId(snapshot.getModifierId());
             ContextHolder.get().setTenantId(snapshot.getTenantId());
