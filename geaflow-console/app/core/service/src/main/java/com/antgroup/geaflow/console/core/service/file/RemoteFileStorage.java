@@ -121,6 +121,9 @@ public class RemoteFileStorage {
                     case OSS:
                         client = new OssFileClient();
                         break;
+                    case S3OSS:
+                        client = new OssS3FileClient();
+                        break;
                     case DFS:
                         client = new DfsFileClient();
                         break;

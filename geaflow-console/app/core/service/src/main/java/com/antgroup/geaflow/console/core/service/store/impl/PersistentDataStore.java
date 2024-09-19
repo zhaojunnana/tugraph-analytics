@@ -48,8 +48,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -183,7 +185,7 @@ public class PersistentDataStore implements GeaflowDataStore {
         geaflowSnapshot.setSnapshotTimeLong(snapshotTime);
         geaflowSnapshot.setSnapshotTime(new Date(snapshotTime * 1000));
         FsPath dstPath = classLoader.newInstance(FsPath.class,
-                geaflowSnapshot.getSnapshotPath(), pathSuffix + "/" + snapshotTime);
+                geaflowSnapshot.getSnapshotPath(), pathSuffix + snapshotTime + "/" + pathSuffix);
         geaflowSnapshot.setStatus(GeaflowSnapshot.SnapshotStatus.RUNNING);
         asyncCopyService.execute(new Thread(() -> {
             copyLastVersionGraphData(persistentIO, classLoader, geaflowSnapshot, srcPath, dstPath);
@@ -206,8 +208,8 @@ public class PersistentDataStore implements GeaflowDataStore {
         VersionClassLoader classLoader = versionFactory.getClassLoader(version);
 
         GeaflowInstance instance = instanceService.get(geaflowSnapshot.getInstanceId());
-        String pathSuffix = instance.getName() + "_" + graph.getName()
-                + "/" + geaflowSnapshot.getSnapshotTime().toInstant().getEpochSecond();
+        String pathSuffix = instance.getName() + "_" + graph.getName();
+        pathSuffix = pathSuffix + geaflowSnapshot.getSnapshotTime().toInstant().getEpochSecond() + "/" + pathSuffix;
         FsPath snapshotPath = classLoader.newInstance(FsPath.class, geaflowSnapshot.getSnapshotPath(), pathSuffix);
         persistentIO.delete(snapshotPath, true);
         return true;
@@ -220,7 +222,8 @@ public class PersistentDataStore implements GeaflowDataStore {
         if (srcFileList == null || srcFileList.isEmpty()) {
             return;
         }
-        List<String> srcDataPath = srcFileList.stream()
+        Set<String> srcFileSet = new HashSet<>(srcFileList);
+        List<String> srcDataPath = srcFileSet.stream()
                 .filter(s -> s.matches("\\d+"))
                 .collect(Collectors.toList());
         long lastVersion = getLastVersion(persistentIO, classLoader, srcPath, srcDataPath);
@@ -374,11 +377,25 @@ public class PersistentDataStore implements GeaflowDataStore {
             List<Future<Boolean>> copyCallList = new ArrayList<>();
             for (int i = 0; i < copySstList.size(); i++) {
                 copyCallList.add(copyFileService.submit(snapshotCopyFile(copySstList.get(i),
-                        dstDataPathList.get(i), true)));
+                        dstDataPathList.get(i))));
             }
             FsPath dstMetaPath = classLoader.newInstance(FsPath.class,
                     dstPath.toString(), shard + "/meta." + version);
-            copyCallList.add(copyFileService.submit(snapshotCopyFile(metaPath, dstMetaPath, false)));
+
+            List<String> srcMetaList = persistentIO.listFile(metaPath);
+            Set<String> srcMetaSet = new HashSet<>(srcMetaList);
+            if (!srcMetaSet.isEmpty()) {
+                List<FsPath> srcMetaPathList =  srcMetaSet.stream()
+                        .map(p -> classLoader.newInstance(FsPath.class, metaPath.toString(), p))
+                        .collect(Collectors.toList());
+                List<FsPath> dstMetaPathList =  srcMetaSet.stream()
+                        .map(p -> classLoader.newInstance(FsPath.class, dstMetaPath.toString(), p))
+                        .collect(Collectors.toList());
+                for (int i = 0; i < srcMetaPathList.size(); i++) {
+                    copyCallList.add(copyFileService.submit(
+                            snapshotCopyFile(srcMetaPathList.get(i), dstMetaPathList.get(i))));
+                }
+            }
             for (Future<Boolean> callFuture : copyCallList) {
                 if (!callFuture.get()) {
                     return false;
@@ -387,7 +404,7 @@ public class PersistentDataStore implements GeaflowDataStore {
             return true;
         }
 
-        private Callable<Boolean> snapshotCopyFile(final FsPath from, final FsPath to, boolean checkSize) {
+        private Callable<Boolean> snapshotCopyFile(final FsPath from, final FsPath to) {
             return () -> {
                 int count = 0;
                 int maxTries = 3;
@@ -395,9 +412,7 @@ public class PersistentDataStore implements GeaflowDataStore {
                 while (true) {
                     try {
                         persistentIO.copyRemoteToRemoteFile(from, to);
-                        if (checkSize) {
-                            checkRes = checkSizeSame(from, to);
-                        }
+                        checkRes = checkSizeSame(from, to);
                         if (!checkRes) {
                             if (++count == maxTries) {
                                 String msg = "snapshot file size not same: " + from;

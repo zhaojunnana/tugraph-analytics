@@ -38,6 +38,8 @@ public enum GeaflowPluginType {
 
     OSS,
 
+    S3OSS,
+
     JDBC,
 
     REDIS,

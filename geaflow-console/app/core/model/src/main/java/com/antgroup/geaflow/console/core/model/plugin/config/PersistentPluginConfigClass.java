@@ -29,7 +29,7 @@ public abstract class PersistentPluginConfigClass extends PluginConfigClass {
     private String root;
 
     @GeaflowConfigKey(value = "geaflow.file.persistent.snapshot", comment = "i18n.key.snapshot.path", jsonIgnore = true)
-    @GeaflowConfigValue(required = true, defaultValue = "/")
+    @GeaflowConfigValue(defaultValue = "/")
     private String snapshot;
 
     @GeaflowConfigKey(value = "geaflow.file.persistent.user.name", comment = "i18n.key.username", jsonIgnore = true)

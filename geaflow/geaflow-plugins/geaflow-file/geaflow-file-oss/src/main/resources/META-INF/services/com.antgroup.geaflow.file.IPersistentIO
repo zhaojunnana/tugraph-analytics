@@ -1,1 +1,2 @@
 com.antgroup.geaflow.file.oss.OssIO
+com.antgroup.geaflow.file.oss.OssS3IO

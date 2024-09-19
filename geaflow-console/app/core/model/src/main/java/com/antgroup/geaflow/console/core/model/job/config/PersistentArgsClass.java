@@ -26,6 +26,7 @@ import com.antgroup.geaflow.console.core.model.plugin.config.LocalPluginConfigCl
 import com.antgroup.geaflow.console.core.model.plugin.config.OssPluginConfigClass;
 import com.antgroup.geaflow.console.core.model.plugin.config.PersistentPluginConfigClass;
 import com.antgroup.geaflow.console.core.model.plugin.config.PluginConfigClass;
+import com.antgroup.geaflow.console.core.model.plugin.config.S3ossPluginConfigClass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -72,6 +73,9 @@ public class PersistentArgsClass extends GeaflowConfigClass {
                 break;
             case OSS:
                 configClass = OssPluginConfigClass.class;
+                break;
+            case S3OSS:
+                configClass = S3ossPluginConfigClass.class;
                 break;
             default:
                 throw new GeaflowIllegalException("Persistent config type {} not supported", pluginConfig.getType());

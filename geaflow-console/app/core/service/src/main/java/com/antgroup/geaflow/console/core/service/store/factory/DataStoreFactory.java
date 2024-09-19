@@ -38,6 +38,7 @@ public class DataStoreFactory {
             case LOCAL:
             case DFS:
             case OSS:
+            case S3OSS:
                 return context.getBean(PersistentDataStore.class);
             default:
                 throw new GeaflowIllegalException("Not supported data store type {}", type);

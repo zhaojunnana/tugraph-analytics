@@ -59,6 +59,8 @@
         <pangu.dfs.version>1.0.4.2ant02-82e3b7d</pangu.dfs.version>
         <kotlin.version>1.5.10</kotlin.version>
         <oss.sdk.version>2.2.0</oss.sdk.version>
+        <oss.awssdk.version>2.20.131</oss.awssdk.version>
+        <httpclient.version4.5>4.5.14</httpclient.version4.5>
         <httpclient.version>4.4.1</httpclient.version>
         <okhttp.version>4.10.0</okhttp.version>
         <okio.version>2.8.0</okio.version>
@@ -219,6 +221,11 @@
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${oss.sdk.version}</version>
             </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${oss.awssdk.version}</version>
+            </dependency>
 
             <!-- jars for log4j -->
             <dependency>
@@ -256,7 +263,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
+                <version>${httpclient.version4.5}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>

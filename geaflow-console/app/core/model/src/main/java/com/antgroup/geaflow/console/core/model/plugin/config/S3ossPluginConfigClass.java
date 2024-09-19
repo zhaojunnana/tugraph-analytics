@@ -12,23 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package com.antgroup.geaflow.file;
+package com.antgroup.geaflow.console.core.model.plugin.config;
 
-public enum PersistentType {
-    /**
-     * oss file schema.
-     */
-    OSS,
-    /**
-     * s3 oss file schema.
-     */
-    S3OSS,
-    /**
-     * hdfs or pangu file schema.
-     */
-    DFS,
-    /**
-     * local file schema, for testing.
-     */
-    LOCAL
+import com.antgroup.geaflow.console.common.util.type.GeaflowPluginType;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class S3ossPluginConfigClass extends OssPluginConfigClass {
+
+    public S3ossPluginConfigClass() {
+        super(GeaflowPluginType.S3OSS);
+    }
+
 }

@@ -46,7 +46,7 @@ import org.apache.hadoop.fs.PathFilter;
 public class OssIO implements IPersistentIO {
 
     private OSSClient ossClient;
-    private String bucketName;
+    protected String bucketName;
 
     public OssIO() {
 
@@ -253,11 +253,11 @@ public class OssIO implements IPersistentIO {
         return PersistentType.OSS;
     }
 
-    private String keyToPath(String key) {
+    protected String keyToPath(String key) {
         return "/" + key;
     }
 
-    private String pathToKey(Path path) {
+    protected String pathToKey(Path path) {
         String strPath = path.toUri().getPath();
         if (strPath.charAt(0) == '/') {
             return strPath.substring(1);
@@ -265,7 +265,7 @@ public class OssIO implements IPersistentIO {
         return strPath;
     }
 
-    private String keyToPrefix(String key) {
+    protected String keyToPrefix(String key) {
         if (key.charAt(key.length() - 1) == '/') {
             return key;
         }

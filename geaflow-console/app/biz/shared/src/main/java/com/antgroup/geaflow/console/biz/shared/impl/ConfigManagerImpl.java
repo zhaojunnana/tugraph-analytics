@@ -95,6 +95,7 @@ public class ConfigManagerImpl implements ConfigManager {
                 }
                 types.add(GeaflowPluginType.DFS.name());
                 types.add(GeaflowPluginType.OSS.name());
+                types.add(GeaflowPluginType.S3OSS.name());
                 break;
             default:
                 throw new GeaflowIllegalException("Unknown category {}", category);
